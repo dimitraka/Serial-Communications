@@ -9,6 +9,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+//REQUEST CODES
+class requestCodes {
+    public static String echo="E9890\r";
+    public static String image="M4308\r";
+    public static String imageWithErrors="G5092\r";
+    public static String gps="P0083"; //does not contain "\r" because gps code will be fixed inside its function
+    public static String ack="Q5391\r";
+    public static String nack="R5992\r";
+}
+
 public class userApplication {
 	
 	public static void main(String[] param) { 
@@ -18,8 +28,7 @@ public class userApplication {
 	public void getEchoPacket(Modem modem){
 		int k; 
 		//ECHO REQUEST CODE
-		String echo="E7572\r";
-		byte[] ebytes = echo.getBytes();
+		byte[] ebytes = requestCodes.echo.getBytes();
 		
 		//to count the time
 		String times = "";
@@ -53,9 +62,7 @@ public class userApplication {
 						k = modem.read();
 						System.out.print((char)k);
 						message += (char)k;
-						if (k==-1) break;
-						//message += (char)k;
-						//System.out.print((char)k);		
+						if (k==-1) break;		
 						if (message.endsWith("PSTOP")){
 							t2 = System.currentTimeMillis();
 							times += String.valueOf(t2-t1) + "\r";
@@ -99,8 +106,7 @@ public class userApplication {
 	public void getImage(Modem modem) { 
 		
 		//IMAGE REQUEST CODE
-		String image="M9721\r";
-		byte[] ibytes = image.getBytes();
+		byte[] ibytes = requestCodes.image.getBytes();
 		modem.write(ibytes);
 		
 		FileOutputStream fop = null;
@@ -153,8 +159,7 @@ public class userApplication {
 public void getImageWithErrors(Modem modem) {
 		
 		//IMAGE REQUEST CODE
-		String image="G2196\r";
-		byte[] ibytes = image.getBytes();
+		byte[] ibytes = requestCodes.imageWithErrors.getBytes();
 		modem.write(ibytes);
 		
 		FileOutputStream fop = null;
@@ -206,8 +211,8 @@ public void getImageWithErrors(Modem modem) {
 
 	public void getGPS(Modem modem) {
 		//GPS REQUEST CODE
-		String gps="P6253R=1000050\r"; 
-		byte[] gbytes = gps.getBytes();
+		String gpsCode1 = requestCodes.gps+"R=1000050\r";
+		byte[] gbytes = gpsCode1.getBytes();
 		modem.write(gbytes);
 		
 		int k;
@@ -289,8 +294,8 @@ public void getImageWithErrors(Modem modem) {
 		
 		}while(f=true && a<50 && b<4); 
 		
-		String gpsNew="P6253T="+coordinates[0]+"T="+coordinates[1]+"T="+coordinates[2]+"T="+coordinates[3]+"\r";
-		byte[] gbytesNew = gpsNew.getBytes();
+		String gpsCode2=requestCodes.gps+"T="+coordinates[0]+"T="+coordinates[1]+"T="+coordinates[2]+"T="+coordinates[3]+"\r";
+		byte[] gbytesNew = gpsCode2.getBytes();
 		modem.write(gbytesNew);
 		
 		FileOutputStream fop = null;
@@ -343,9 +348,7 @@ public void getImageWithErrors(Modem modem) {
 	public void getARQ(Modem modem) {
 		int k;
 		//ARQ REQUEST CODE
-		String ack="Q6154\r";
-		String nack="R7401\r";
-		String msg=ack;
+		String msg=requestCodes.ack;
 		
 		//to count the time
 		String times = "";
@@ -411,7 +414,7 @@ public void getImageWithErrors(Modem modem) {
 					
 					if (temp==FCS){
 						//next
-						msg=ack;
+						msg=requestCodes.ack;
 						num++; 
 						numCorrect++;//number of successful packets
 						t2 = System.currentTimeMillis();
@@ -422,7 +425,7 @@ public void getImageWithErrors(Modem modem) {
 						System.out.println(resentString);
 					}else {
 						//repeat
-						msg=nack;
+						msg=requestCodes.nack;
 						num++;
 						numWrong++;
 						resent++;
@@ -476,22 +479,20 @@ public void getImageWithErrors(Modem modem) {
 		getEchoPacket(modem);	
 		
 		//image request
-		//getImage(modem);
+		getImage(modem);
 		
 		//image with errors request 
-		//getImageWithErrors(modem);
+		getImageWithErrors(modem);
 		
 		//gps request
-		//getGPS(modem);
+		getGPS(modem);
 		
 		//arq result
-		//getARQ(modem);
+		getARQ(modem);
 		
 		modem.close();
 			
 	}
-	
-	
 
 }
 
