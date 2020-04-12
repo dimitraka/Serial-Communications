@@ -211,13 +211,13 @@ public void getImageWithErrors(Modem modem) {
 
 public void getGPS(Modem modem) {
 	//GPS REQUEST CODE
-	String gpsCode1 = requestCodes.gps+"R=1000050\r"; //1000050 //1016850
+	String gpsCode1 = requestCodes.gps+"R=1010050\r"; //path = 1000050 or 1016850 or 1010050
 	byte[] gbytes = gpsCode1.getBytes();
 	modem.write(gbytes);
 	
 	int k;
-	int numOfCodes=50; //number of GPS codes to get
-	int differ=4; //seconds that each point has to differ from the others
+	int numOfCodes = 50; //number of GPS codes to get
+	int differ = 10; //seconds that each point has to differ from the others
 	
 	String[] GPS = new String[numOfCodes]; //save the returned codes in this array
 	for (int w=0; w<numOfCodes; w++) { //create an empty string (if not, then the string is null)
