@@ -8,7 +8,8 @@ function [ noUse ] = echo( )
   y = y';
   
   plot(x,y);
-  xlabel('Number of packets');
-  ylabel({'Response time of packets','milliseconds'});
+  title('ECHO packets','FontSize', 30);
+  xlabel('Number of packets','FontSize', 20);
+  ylabel({'Response time of packets','in milliseconds'},'FontSize', 20);
   axis([size(x) max(y)/2 (max(y)+max(y)/16)]);
 endfunction

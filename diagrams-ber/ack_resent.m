@@ -8,8 +8,9 @@ function [ noUse ] = barChart( )
   y = y';
   
   plot(x,y);
-  xlabel('Number of packets');
-  ylabel({'Response time of resent packets','milliseconds'});
+  title('RESENT ARQ packets','FontSize', 30);
+  xlabel('Number of packets','FontSize', 20);
+  ylabel({'Response time of resent packets','milliseconds'},'FontSize', 20);
   ylim([0 max(y)]);
   xlim([0 max(x)]);
 
