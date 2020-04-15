@@ -211,7 +211,7 @@ public void getImageWithErrors(Modem modem) {
 
 public void getGPS(Modem modem) {
 	//GPS REQUEST CODE
-	String gpsCode1 = requestCodes.gps+"R=1010050\r"; //path = 1000050 or 1016850 or 1010050
+	String gpsCode1 = requestCodes.gps+"R=1010050\r"; //path = 1010050 (1rst session) or 1020550 (2nd session) or 1011150 or 1049950 or 1000050
 	byte[] gbytes = gpsCode1.getBytes();
 	modem.write(gbytes);
 	
