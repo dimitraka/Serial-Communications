@@ -1,4 +1,10 @@
-/* Dimitra Karatza 8828*/
+/*!
+  \file   userApplication.java
+  \brief  Source code of project for Computer Networks I on serial communication with server Ithaki 
+  \author Dimitra Karatza
+  \AEM    8828
+  \date   2020-4-15
+*/
 
 package userApplication;
 
@@ -72,9 +78,7 @@ public class userApplication {
 					}	
 					catch (Exception x) {
 						break;
-					}
-				
-					
+					}				
 				}
 				System.out.println("");
 			}
@@ -100,7 +104,6 @@ public class userApplication {
 				e.printStackTrace();
 			}
 		}
-
 	}
 	
 	public void getImage(Modem modem) { 
@@ -135,9 +138,6 @@ public class userApplication {
 				if (i==0xD9 && j==0xFF){
 					break;
 				}
-
-
-		
 			}
 			fop.close();
 			
@@ -156,8 +156,8 @@ public class userApplication {
 	}
 	
 	
-public void getImageWithErrors(Modem modem) {
-		
+	public void getImageWithErrors(Modem modem) {
+			
 		//IMAGE REQUEST CODE
 		byte[] ibytes = requestCodes.imageWithErrors.getBytes();
 		modem.write(ibytes);
@@ -188,9 +188,6 @@ public void getImageWithErrors(Modem modem) {
 				if (i==0xD9 && j==0xFF){
 					break;
 				}
-
-
-		
 			}
 			fop.close();
 			
@@ -208,141 +205,137 @@ public void getImageWithErrors(Modem modem) {
 		}
 	}
 	
-
-public void getGPS(Modem modem) {
-	//GPS REQUEST CODE
-	String gpsCode1 = requestCodes.gps+"R=1010050\r"; //path = 1010050 (1rst session) or 1020550 (2nd session) or 1011150 or 1049950 or 1000050
-	byte[] gbytes = gpsCode1.getBytes();
-	modem.write(gbytes);
 	
-	int k;
-	int numOfCodes = 50; //number of GPS codes to get
-	int differ = 10; //seconds that each point has to differ from the others
-	
-	String[] GPS = new String[numOfCodes]; //save the returned codes in this array
-	for (int w=0; w<numOfCodes; w++) { //create an empty string (if not, then the string is null)
-		GPS[w] = "";
-	}
-	
-	int n=-1; //number of codes returned, it is not 0 because we start writing from position 0
-	
-	for (;;) {
-		try {
-			k = modem.read();
-			if (k==-1) break;
-					
-			String l = String.valueOf((char)k);
-			
-			if((char)k=='$' ) { 
-				n++; //start writing at the next line of the array
-			}
-			
-			if(n>=0 && n<numOfCodes-1) { //n<numOfCodes-1 because we don't want the last line 
-				GPS[n] = GPS[n] + l; //to avoid writing the lines which say "gps start" and "gps stop"
-			}
-			
-		}	
-		catch (Exception x) {
-			break;
+	public void getGPS(Modem modem) {
+		//GPS REQUEST CODE
+		String gpsCode1 = requestCodes.gps+"R=1010050\r"; //path = 1010050 (1rst session) or 1020550 (2nd session) or 1011150 or 1049950 or 1000050
+		byte[] gbytes = gpsCode1.getBytes();
+		modem.write(gbytes);
+		
+		int k;
+		int numOfCodes = 50; //number of GPS codes to get
+		int differ = 10; //seconds that each point has to differ from the others
+		
+		String[] GPS = new String[numOfCodes]; //save the returned codes in this array
+		for (int w=0; w<numOfCodes; w++) { //create an empty string (if not, then the string is null)
+			GPS[w] = "";
 		}
-	}
-	
-	//check array
-	for (int w=0; w<numOfCodes; w++) { //array includes STOP ITHAKI GPS TRACKING 
-		System.out.print(GPS[w]);
-	}
-	
-	//split the returned codes
-	
-	String latitude; //we need at least 4 coordinates for the image co1=225735403737 co2=225734403736 co3=225734403737 co4=225733403738
-	String longitude;
-	int a=0,b=0; //number of spots
-	String coordinates[]= new String[4];	
-	boolean f = false;
-	
-	do {
-
-		String[] parts = GPS[a].split(",");
 		
-		float partsFloat[]= new float[2]; //convert string to float
-	
-		//latitude
-		partsFloat[0] = Float.valueOf(parts[2]);
-
-		latitude =  Integer.toString((int)partsFloat[0]) +  Integer.toString((int)((partsFloat[0]-(int)partsFloat[0])*60));
-			
-		//longitude
-		partsFloat[1] = Float.valueOf(parts[4]);
-	
-		longitude =  Integer.toString((int)partsFloat[1]) +  Integer.toString((int)((partsFloat[1]-(int)partsFloat[1])*60));
-			
-		//concatenate the longitude and the latitude
-		coordinates[b] = "" + longitude + latitude;
-		coordinates[b] = coordinates[b].replaceFirst("^0+(?!$)", ""); //get rid of the first 0
+		int n=-1; //number of codes returned, it is not 0 because we start writing from position 0
 		
-		//System.out.print(coordinates[b]+"\n");
-		
-		if(b!=0 && Objects.equals(coordinates[b], coordinates[b-1] )){ //coordinates[b]==coordinates[b-1])
-			f = true;
-			a++; //when we have 2 same coordinates we check the next coordinate
-		}else {
-			f = false;
-			a=a+differ; //we want the coordinates to differ by "differ" seconds when we don't have same coordinates
-			b++;
-		}
-	
-	
-	}while(f=true && a<numOfCodes && b<4); 
-	
-	String gpsCode2=requestCodes.gps+"T="+coordinates[0]+"T="+coordinates[1]+"T="+coordinates[2]+"T="+coordinates[3]+"\r";
-	byte[] gbytesNew = gpsCode2.getBytes();
-	modem.write(gbytesNew);
-	
-	FileOutputStream fop = null;
-	File file;
-	
-	int i,j;
-	
-	try {
-		
-		file = new File("C:\\Users\\dimit\\Desktop\\ComputerNetworksI\\CodeRepository\\GPSimage.jpg");
-		fop = new FileOutputStream(file);
-		boolean flag = false;
-		
-		i = modem.read();
-		
-		for (;;){
-			j=i;
-			i = modem.read();
-			if (i==-1) break;
-			if (i==0xD8 && j==0xFF) { 
-				flag = true; 
-			}
-			if(flag==true) {
-				fop.write(j);
-			}
-			if (i==0xD9 && j==0xFF){
+		for (;;) {
+			try {
+				k = modem.read();
+				if (k==-1) break;
+						
+				String l = String.valueOf((char)k);
+				
+				if((char)k=='$' ) { 
+					n++; //start writing at the next line of the array
+				}
+				
+				if(n>=0 && n<numOfCodes-1) { //n<numOfCodes-1 because we don't want the last line 
+					GPS[n] = GPS[n] + l; //to avoid writing the lines which say "gps start" and "gps stop"
+				}
+				
+			}	
+			catch (Exception x) {
 				break;
 			}
-
-
-	
 		}
-		fop.close();
 		
-	} catch (IOException e) {
-		e.printStackTrace();
+		//check array
+		for (int w=0; w<numOfCodes; w++) { //array includes STOP ITHAKI GPS TRACKING 
+			System.out.print(GPS[w]);
+		}
 		
-	} finally {
-		try {
-			if (fop != null) {
-				fop.close();
+		//split the returned codes
+		
+		String latitude; //we need at least 4 coordinates for the image co1=225735403737 co2=225734403736 co3=225734403737 co4=225733403738
+		String longitude;
+		int a=0,b=0; //number of spots
+		String coordinates[]= new String[4];	
+		boolean f = false;
+		
+		do {
+	
+			String[] parts = GPS[a].split(",");
+			
+			float partsFloat[]= new float[2]; //convert string to float
+		
+			//latitude
+			partsFloat[0] = Float.valueOf(parts[2]);
+	
+			latitude =  Integer.toString((int)partsFloat[0]) +  Integer.toString((int)((partsFloat[0]-(int)partsFloat[0])*60));
+				
+			//longitude
+			partsFloat[1] = Float.valueOf(parts[4]);
+		
+			longitude =  Integer.toString((int)partsFloat[1]) +  Integer.toString((int)((partsFloat[1]-(int)partsFloat[1])*60));
+				
+			//concatenate the longitude and the latitude
+			coordinates[b] = "" + longitude + latitude;
+			coordinates[b] = coordinates[b].replaceFirst("^0+(?!$)", ""); //get rid of the first 0
+			
+			//System.out.print(coordinates[b]+"\n");
+			
+			if(b!=0 && Objects.equals(coordinates[b], coordinates[b-1] )){ //coordinates[b]==coordinates[b-1])
+				f = true;
+				a++; //when we have 2 same coordinates we check the next coordinate
+			}else {
+				f = false;
+				a=a+differ; //we want the coordinates to differ by "differ" seconds when we don't have same coordinates
+				b++;
 			}
+		
+		}while(f=true && a<numOfCodes && b<4); 
+		
+		String gpsCode2=requestCodes.gps+"T="+coordinates[0]+"T="+coordinates[1]+"T="+coordinates[2]+"T="+coordinates[3]+"\r";
+		byte[] gbytesNew = gpsCode2.getBytes();
+		modem.write(gbytesNew);
+		
+		FileOutputStream fop = null;
+		File file;
+		
+		int i,j;
+		
+		try {
+			
+			file = new File("C:\\Users\\dimit\\Desktop\\ComputerNetworksI\\CodeRepository\\GPSimage.jpg");
+			fop = new FileOutputStream(file);
+			boolean flag = false;
+			
+			i = modem.read();
+			
+			for (;;){
+				j=i;
+				i = modem.read();
+				if (i==-1) break;
+				if (i==0xD8 && j==0xFF) { 
+					flag = true; 
+				}
+				if(flag==true) {
+					fop.write(j);
+				}
+				if (i==0xD9 && j==0xFF){
+					break;
+				}
+			}
+			fop.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
+			
+		} finally {
+			try {
+				if (fop != null) {
+					fop.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-}
 	
 	
 	public void getARQ(Modem modem) {
@@ -394,7 +387,6 @@ public void getGPS(Modem modem) {
 							System.out.println("");
 							break;
 						}
-						
 					}	
 					catch (Exception x) {
 						break;
@@ -490,10 +482,8 @@ public void getGPS(Modem modem) {
 		//arq result
 		getARQ(modem);
 		
-		modem.close();
-			
+		modem.close();			
 	}
-
 }
 
 
