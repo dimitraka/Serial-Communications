@@ -485,5 +485,3 @@ public class userApplication {
 		modem.close();			
 	}
 }
-
-
