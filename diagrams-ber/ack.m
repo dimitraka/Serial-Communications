@@ -8,8 +8,10 @@ function [ noUse ] = arq( )
   y = y';
   
   plot(x,y);
+  set(gca,'FontSize',20)
   title('ARQ packets','FontSize', 30);
-  xlabel('Number of packets','FontSize', 20);
-  ylabel({'Response time of packets','in milliseconds'},'FontSize', 20);
+  xlabel('Number of packets','FontSize', 30);
+  ylabel({'Response time of packets','in milliseconds'},'FontSize', 30);
   axis([0 max(y)/2 (max(y)+max(y)/16)]);
+
 endfunction

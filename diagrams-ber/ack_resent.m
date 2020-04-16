@@ -7,10 +7,11 @@ function [ noUse ] = barChart( )
   x = x';
   y = y';
   
-  plot(x,y);
+  plot(x,y); 
+  set(gca,'FontSize',20);
   title('RESENT ARQ packets','FontSize', 30);
-  xlabel('Number of packets','FontSize', 20);
-  ylabel({'Response time of resent packets','milliseconds'},'FontSize', 20);
+  xlabel('Number of packets','FontSize', 30);
+  ylabel({'Response time of resent packets','milliseconds'},'FontSize', 30);
   ylim([0 max(y)]);
   xlim([0 max(x)]);
 
